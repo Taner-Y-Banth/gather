@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gather_app/pages/messages.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -61,22 +62,18 @@ class _HomePageState extends State<HomePage> {
         Container(
           color: Colors.lightBlue,
           alignment: Alignment.center,
-          child: const Text('Blue!'),
+          child: const Text('HOME'),
         ),
-        Container(
-          color: Colors.orange,
-          alignment: Alignment.center,
-          child: const Text('Orange!'),
-        ),
+        const Messages(),
         Container(
           color: Colors.pink,
           alignment: Alignment.center,
-          child: const Text('Pink'),
+          child: const Text('CIRCLES'),
         ),
         Container(
           color: Colors.purple,
           alignment: Alignment.center,
-          child: const Text('Purple'),
+          child: const Text('NOTIFS'),
         ),
       ][currentPageIndex],
     );
