@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:gather_app/pages/home.dart';
+import 'package:gather_app/firebase_options.dart';
+import 'package:gather_app/pages/login/auth_gate.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -14,9 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Outfit'),
-      home: const HomePage(
-        title: 'test',
-      ),
+      home: const AuthGate(),
     );
   }
 }

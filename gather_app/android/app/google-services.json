@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "446830379713",
+    "project_id": "gather-circle",
+    "storage_bucket": "gather-circle.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:446830379713:android:25c20de9c02fc9d6c70a40",
+        "android_client_info": {
+          "package_name": "com.example.gather_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkNpzyFllNp5TVCxUrOUk7SiqpQiAgdfc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
