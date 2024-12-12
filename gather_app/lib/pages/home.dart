@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gather_app/pages/messages.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -16,6 +17,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int currentPageIndex = 0;
 
+  void _logout() async {
+    // logout firebase user
+    await FirebaseAuth.instance.signOut();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,6 +36,13 @@ class _HomePageState extends State<HomePage> {
         ),
         backgroundColor: const Color.fromARGB(255, 229, 200, 200),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _logout,
+            tooltip: 'Logout',
+          ),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         animationDuration: const Duration(milliseconds: 200),
