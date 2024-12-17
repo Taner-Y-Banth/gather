@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:gather_app/pages/messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -17,7 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int currentPageIndex = 0;
 
-  void _logout() async {
+  void logout() async {
     // logout firebase user
     await FirebaseAuth.instance.signOut();
   }
@@ -38,9 +39,22 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-            tooltip: 'Logout',
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute<ProfileScreen>(
+                  builder: (context) => ProfileScreen(
+                    avatarShape: const CircleBorder(side: BorderSide.none),
+                    actions: [
+                      SignedOutAction((context) {
+                        Navigator.of(context).pop();
+                      }),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
