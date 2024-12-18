@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gather_app/pages/login/auth_gate.dart';
+import 'package:gather_app/pages/login/password_check.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -15,31 +16,6 @@ class ProfileState extends State<Profile> {
   final TextEditingController passwordConfirmationController =
       TextEditingController();
   final FirebaseAuth auth = FirebaseAuth.instance;
-
-  void checkPassword() {
-    if (passwordController.text != passwordConfirmationController.text) {
-      // Displays an alert dialog if the passwords do not match
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Error'),
-            content: const Text('Passwords do not match'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Close'),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      signUp();
-    }
-  }
 
   // Sign up the user and take to the home page
   Future<void> signUp() async {
@@ -86,7 +62,14 @@ class ProfileState extends State<Profile> {
             ),
             // display an error message if the passwords do not match, if they do match, sign up the user
             ElevatedButton(
-              onPressed: checkPassword,
+              onPressed: () {
+                PasswordCheck().checkPassword(
+                  passwordController,
+                  passwordConfirmationController,
+                  context,
+                  signUp,
+                );
+              },
               child: const Text('Sign Up'),
             ),
           ],
