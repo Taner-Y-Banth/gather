@@ -21,8 +21,24 @@ class SignInScreenState extends State<SignInScreen> {
         password: passwordController.text,
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('Error: $e');
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Invalid email or password'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -50,14 +66,22 @@ class SignInScreenState extends State<SignInScreen> {
               onPressed: signIn,
               child: const Text('Sign In'),
             ),
-            ElevatedButton(
-              onPressed: () {
+            GestureDetector(
+              onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const Profile()),
+                  MaterialPageRoute(builder: (context) => const SignUp()),
                 );
               },
-              child: const Text('Or Sign Up'),
+              // highlight the text to indicate it is clickable
+              child: const Text(
+                'Or Sign Up',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 17, 102, 172),
+                  decoration: TextDecoration.underline,
+                  decorationColor: Color.fromARGB(255, 17, 102, 172),
+                ),
+              ),
             ),
           ],
         ),

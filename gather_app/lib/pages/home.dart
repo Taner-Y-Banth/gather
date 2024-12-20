@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:gather_app/pages/profile/profile.dart';
 import 'package:gather_app/pages/messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -12,10 +12,10 @@ class HomePage extends StatefulWidget {
   });
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   int currentPageIndex = 0;
 
   void logout() async {
@@ -43,15 +43,8 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute<ProfileScreen>(
-                  builder: (context) => ProfileScreen(
-                    avatarShape: const CircleBorder(side: BorderSide.none),
-                    actions: [
-                      SignedOutAction((context) {
-                        Navigator.of(context).pop();
-                      }),
-                    ],
-                  ),
+                MaterialPageRoute(
+                  builder: (context) => const ProfilePage(),
                 ),
               );
             },

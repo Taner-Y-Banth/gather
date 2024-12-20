@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:gather_app/pages/login/auth_gate.dart';
 import 'package:gather_app/pages/login/password_check.dart';
 
-class Profile extends StatefulWidget {
-  const Profile({super.key});
+class SignUp extends StatefulWidget {
+  const SignUp({super.key});
 
   @override
-  ProfileState createState() => ProfileState();
+  SignUpState createState() => SignUpState();
 }
 
-class ProfileState extends State<Profile> {
+class SignUpState extends State<SignUp> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController passwordConfirmationController =
@@ -31,8 +31,24 @@ class ProfileState extends State<Profile> {
         MaterialPageRoute(builder: (context) => const AuthGate()),
       );
     } catch (e) {
-      // ignore: avoid_print
-      print('Error: $e');
+      String error = e.toString();
+      if (!mounted) return;
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text(error),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Close'),
+                ),
+              ],
+            );
+          });
     }
   }
 
@@ -40,40 +56,52 @@ class ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign In'),
+        title: const Text('Sign Up'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(80, 20, 80, 0),
+            child: Image(
+              image: AssetImage('assets/logo-circle.png'),
             ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                ),
+                TextField(
+                  controller: passwordController,
+                  decoration: const InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                ),
+                TextField(
+                  controller: passwordConfirmationController,
+                  decoration:
+                      const InputDecoration(labelText: 'Confirm Password'),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    PasswordCheck().checkPassword(
+                      passwordController,
+                      passwordConfirmationController,
+                      context,
+                      signUp,
+                    );
+                  },
+                  child: const Text('Sign Up'),
+                ),
+              ],
             ),
-            TextField(
-              controller: passwordConfirmationController,
-              decoration: const InputDecoration(labelText: 'Confirm Password'),
-              obscureText: true,
-            ),
-            // display an error message if the passwords do not match, if they do match, sign up the user
-            ElevatedButton(
-              onPressed: () {
-                PasswordCheck().checkPassword(
-                  passwordController,
-                  passwordConfirmationController,
-                  context,
-                  signUp,
-                );
-              },
-              child: const Text('Sign Up'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
