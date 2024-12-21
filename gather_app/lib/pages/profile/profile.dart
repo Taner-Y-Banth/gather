@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
+import 'package:gather_app/pages/login/auth_gate.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,74 +14,73 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController usernameController = TextEditingController();
-  File? _image;
-  final ImagePicker _picker = ImagePicker();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  File? image;
+  String? imageUrl;
+  final ImagePicker picker = ImagePicker();
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseStorage storage = FirebaseStorage.instance;
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+  @override
+  void initState() {
+    super.initState();
+    getUsernameAndPhoto();
+  }
+
+  Future<void> getUsernameAndPhoto() async {
+    User? user = auth.currentUser;
+    if (user != null) {
       setState(() {
-        _image = File(pickedFile.path);
+        usernameController.text = user.displayName ?? 'Username';
+        imageUrl = user.photoURL;
       });
     }
   }
 
-  Future<void> _updateProfile() async {
+  Future<void> pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        image = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> updateProfile() async {
     try {
-      User? user = _auth.currentUser;
+      User? user = auth.currentUser;
       if (user != null) {
-        String? imageUrl;
-        if (_image != null) {
+        if (image != null) {
           // Upload the image to Firebase Storage
           final storageRef =
-              _storage.ref().child('profile_pictures/${user.uid}');
-          await storageRef.putFile(_image!);
+              storage.ref().child('profile_pictures/${user.uid}');
+          await storageRef.putFile(image!);
           imageUrl = await storageRef.getDownloadURL();
         }
-
-        // Check if the user document exists
-        final userDoc = _firestore.collection('users').doc(user.uid);
-        final docSnapshot = await userDoc.get();
-
-        if (!docSnapshot.exists) {
-          // Create the user document if it doesn't exist
-          await userDoc.set({
-            'email': user.email,
-            'username': usernameController.text,
-            'profilePicture': imageUrl,
-          });
-        } else {
-          // Update the user's profile in Firestore
-          await userDoc.update({
-            'username': usernameController.text,
-            'profilePicture': imageUrl,
-          });
-        }
-
-        // Optionally, update the user's display name and photo URL in FirebaseAuth
+        // Update the user's display name and photo URL in FirebaseAuth
         await user.updateDisplayName(usernameController.text);
         if (imageUrl != null) {
-          await user.updatePhotoURL(imageUrl);
+          await user.updatePhotoURL(imageUrl!);
         }
 
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully')),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
   }
 
-  Future<void> _signOut() async {
-    await _auth.signOut();
-    Navigator.of(context)
-        .pushReplacementNamed('/login'); // Adjust the route as needed
+  Future<void> signOut() async {
+    await auth.signOut();
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const AuthGate()),
+    );
   }
 
   @override
@@ -95,15 +94,34 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage: _image != null ? FileImage(_image!) : null,
-                child: _image == null
-                    ? const Icon(Icons.add_a_photo, size: 50)
-                    : null,
-              ),
+            Stack(
+              children: [
+                GestureDetector(
+                  onTap: pickImage,
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundImage: image != null
+                        ? FileImage(image!)
+                        : (imageUrl != null ? NetworkImage(imageUrl!) : null),
+                    child: image == null && imageUrl == null
+                        ? const Icon(Icons.add_a_photo, size: 50)
+                        : null,
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: pickImage,
+                    child: const CircleAvatar(
+                      radius: 15,
+                      backgroundColor: Color.fromARGB(255, 251, 197, 197),
+                      child: Icon(Icons.edit,
+                          size: 15, color: Color.fromARGB(255, 0, 0, 0)),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
             TextField(
@@ -112,12 +130,12 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _updateProfile,
+              onPressed: updateProfile,
               child: const Text('Update Profile'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _signOut,
+              onPressed: signOut,
               child: const Text('Sign Out'),
             ),
           ],
