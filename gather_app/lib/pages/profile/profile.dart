@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:gather_app/pages/login/auth_gate.dart';
+import 'package:gather_app/pages/functions/update_user.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -67,6 +68,8 @@ class _ProfilePageState extends State<ProfilePage> {
           const SnackBar(content: Text('Profile updated successfully')),
         );
       }
+
+      UpdateUser().updateUser(usernameController.text, imageUrl!, user);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
