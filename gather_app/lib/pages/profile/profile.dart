@@ -78,6 +78,12 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _signOut() async {
+    await _auth.signOut();
+    Navigator.of(context)
+        .pushReplacementNamed('/login'); // Adjust the route as needed
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,6 +114,11 @@ class _ProfilePageState extends State<ProfilePage> {
             ElevatedButton(
               onPressed: _updateProfile,
               child: const Text('Update Profile'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _signOut,
+              child: const Text('Sign Out'),
             ),
           ],
         ),
