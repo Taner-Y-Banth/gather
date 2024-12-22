@@ -1,16 +1,34 @@
 # gather_app
 
-A new Flutter project.
+A Community Focused Social Networking Application.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- User authentication with Firebase
+- Profile setup with image upload
+- Real-time messaging
+- Notifications
 
-A few resources to get you started if this is your first Flutter project:
+## Installation
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/yourusername/gather_app.git
+   ```
+2. Navigate to the project directory:
+   ```sh
+   cd gather_app
+   ```
+3. Install dependencies:
+   ```sh
+   flutter pub get
+   ```
+4. Set up Firebase for your project and update `firebase_options.dart` with your configuration.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Usage
+
+1. Run the app:
+   ```sh
+   flutter run
+   ```
+2. Sign up or log in to start using the app.
