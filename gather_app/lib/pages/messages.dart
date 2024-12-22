@@ -6,23 +6,92 @@ class Messages extends StatefulWidget {
   const Messages({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _MessagesState createState() => _MessagesState();
 }
 
 class _MessagesState extends State<Messages> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Messages'),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _firestore
+            .collection('users')
+            .doc(_auth.currentUser?.uid)
+            .collection('friends')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          }
+
+          if (!snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          final friends = snapshot.data!.docs;
+          if (friends.isEmpty) {
+            return const Center(
+              child: Text('No friends found'),
+            );
+          }
+
+          return ListView(
+            children: friends.map((friend) {
+              final friendEmail = friend['to'] == _auth.currentUser?.email
+                  ? friend['from']
+                  : friend['to'];
+
+              return ListTile(
+                title: Text(friendEmail),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ChatScreen(friendEmail: friendEmail),
+                    ),
+                  );
+                },
+              );
+            }).toList(),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ChatScreen extends StatefulWidget {
+  final String friendEmail;
+
+  const ChatScreen({super.key, required this.friendEmail});
+
+  @override
+  _ChatScreenState createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String? _selectedUser;
 
   void _sendMessage() async {
-    if (_controller.text.isNotEmpty && _selectedUser != null) {
+    if (_controller.text.isNotEmpty) {
       try {
         await _firestore.collection('messages').add({
           'text': _controller.text,
           'sender': _auth.currentUser?.email,
-          'receiver': _selectedUser,
+          'receiver': widget.friendEmail,
           'timestamp': FieldValue.serverTimestamp(),
         });
         _controller.clear();
@@ -39,58 +108,18 @@ class _MessagesState extends State<Messages> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Messages'),
+        title: Text('Chat with ${widget.friendEmail}'),
       ),
       body: Column(
         children: [
-          StreamBuilder<QuerySnapshot>(
-            stream: _firestore.collection('users').snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text('Error: ${snapshot.error}'),
-                );
-              }
-
-              if (!snapshot.hasData) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-
-              final users = snapshot.data!.docs;
-              if (users.isEmpty) {
-                return const Center(
-                  child: Text('No users found'),
-                );
-              }
-
-              List<DropdownMenuItem<String>> userItems = users.map((user) {
-                final userEmail = user['email'];
-                return DropdownMenuItem<String>(
-                  value: userEmail,
-                  child: Text(userEmail),
-                );
-              }).toList();
-
-              return DropdownButton<String>(
-                hint: const Text('Select a user'),
-                value: _selectedUser,
-                items: userItems,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedUser = value;
-                  });
-                },
-              );
-            },
-          ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _firestore
                   .collection('messages')
-                  .where('sender', isEqualTo: _auth.currentUser?.email)
-                  .where('receiver', isEqualTo: _selectedUser)
+                  .where('sender',
+                      whereIn: [_auth.currentUser?.email, widget.friendEmail])
+                  .where('receiver',
+                      whereIn: [_auth.currentUser?.email, widget.friendEmail])
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {

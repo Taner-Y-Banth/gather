@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gather_app/pages/profile/profile.dart';
 import 'package:gather_app/pages/messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gather_app/pages/friends/add_friends.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -21,6 +22,17 @@ class HomePageState extends State<HomePage> {
   void logout() async {
     // logout firebase user
     await FirebaseAuth.instance.signOut();
+  }
+
+  void showAddFriendsPopup() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const Dialog(
+          child: AddFriendsPage(),
+        );
+      },
+    );
   }
 
   @override
@@ -54,9 +66,7 @@ class HomePageState extends State<HomePage> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 0.0),
         child: FloatingActionButton(
-          onPressed: () {
-            // Define the action for the FAB here
-          },
+          onPressed: showAddFriendsPopup,
           backgroundColor: Colors.blue,
           shape: const CircleBorder(),
           child: const Icon(Icons.add, size: 30),
