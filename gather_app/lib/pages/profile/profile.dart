@@ -86,6 +86,91 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Future<void> deleteUser(user) async {
+    User? user = auth.currentUser;
+    await user!.delete();
+
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const AuthGate()),
+    );
+  }
+
+  Future<void> reauthenticateUser() async {
+    User? user = auth.currentUser;
+    if (user != null) {
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: await _getPasswordFromUser(),
+      );
+      await user.reauthenticateWithCredential(credential);
+    }
+  }
+
+  Future<String> _getPasswordFromUser() async {
+    String password = '';
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Re-authenticate'),
+          content: TextField(
+            obscureText: true,
+            decoration: const InputDecoration(labelText: 'Password'),
+            onChanged: (value) {
+              password = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+    return password;
+  }
+
+  Future<void> confirmDeleteUser() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text(
+              'Are you sure you want to delete your account? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await reauthenticateUser();
+                deleteUser(auth.currentUser);
+
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,10 +221,23 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: updateProfile,
               child: const Text('Update Profile'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: signOut,
+              style: ElevatedButton.styleFrom(),
               child: const Text('Sign Out'),
+            ),
+            GestureDetector(
+              onTap: confirmDeleteUser,
+              // highlight the text to indicate it is clickable
+              child: const Text(
+                'DELETE ACCOUNT',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 255, 0, 0),
+                  decoration: TextDecoration.underline,
+                  decorationColor: Color.fromARGB(255, 255, 0, 0),
+                ),
+              ),
             ),
           ],
         ),

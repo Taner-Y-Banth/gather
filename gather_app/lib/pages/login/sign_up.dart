@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gather_app/pages/login/auth_gate.dart';
 import 'package:gather_app/pages/functions/password_check.dart';
+import 'package:gather_app/pages/functions/update_user.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -24,6 +25,9 @@ class SignUpState extends State<SignUp> {
         email: emailController.text,
         password: passwordController.text,
       );
+
+      UpdateUser().setUser(emailController.text, auth.currentUser);
+
       // Navigate to the home page if sign up is successful
       Navigator.push(
         // ignore: use_build_context_synchronously
