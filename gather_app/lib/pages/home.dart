@@ -51,32 +51,60 @@ class HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        animationDuration: const Duration(milliseconds: 200),
-        destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.message),
-            label: 'Messages',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.circle),
-            label: 'Circles',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.notifications_rounded),
-            label: 'Notifications',
-          ),
-        ],
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        selectedIndex: currentPageIndex,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 0.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            // Define the action for the FAB here
+          },
+          backgroundColor: Colors.blue,
+          shape: const CircleBorder(),
+          child: const Icon(Icons.add, size: 30),
+        ),
+      ),
+      floatingActionButtonLocation: const CustomFloatingActionButtonLocation(),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        height: 50,
+        notchMargin: 5.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.home),
+              onPressed: () {
+                setState(() {
+                  currentPageIndex = 0;
+                });
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.message),
+              onPressed: () {
+                setState(() {
+                  currentPageIndex = 1;
+                });
+              },
+            ),
+            const SizedBox(width: 40), // The FAB is in the middle
+            IconButton(
+              icon: const Icon(Icons.circle),
+              onPressed: () {
+                setState(() {
+                  currentPageIndex = 2;
+                });
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.notifications_rounded),
+              onPressed: () {
+                setState(() {
+                  currentPageIndex = 3;
+                });
+              },
+            ),
+          ],
+        ),
       ),
       body: <Widget>[
         Container(
@@ -97,5 +125,20 @@ class HomePageState extends State<HomePage> {
         ),
       ][currentPageIndex],
     );
+  }
+}
+
+class CustomFloatingActionButtonLocation extends FloatingActionButtonLocation {
+  const CustomFloatingActionButtonLocation();
+
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+    final double fabX = (scaffoldGeometry.scaffoldSize.width -
+            scaffoldGeometry.floatingActionButtonSize.width) /
+        2;
+    final double fabY = scaffoldGeometry.scaffoldSize.height -
+        scaffoldGeometry.floatingActionButtonSize.height -
+        30; // Adjust the value to lower the FAB
+    return Offset(fabX, fabY);
   }
 }
